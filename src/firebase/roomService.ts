@@ -11,7 +11,7 @@ import {
   type DocumentData,
   type Unsubscribe,
 } from 'firebase/firestore';
-import { db } from './firebase';
+import { getDb } from './firebase';
 import type { Card, PlayerAction, TableState } from '../engine/types';
 import { createInitialTable, type NewPlayerInput } from '../engine/engine';
 
@@ -26,15 +26,15 @@ export function generateRoomCode(length = 5): string {
 }
 
 function roomRef(roomCode: string) {
-  return doc(db, 'rooms', roomCode.toUpperCase());
+  return doc(getDb(), 'rooms', roomCode.toUpperCase());
 }
 
 function privateHandRef(roomCode: string, uid: string) {
-  return doc(db, 'rooms', roomCode.toUpperCase(), 'private', uid);
+  return doc(getDb(), 'rooms', roomCode.toUpperCase(), 'private', uid);
 }
 
 function actionsCollection(roomCode: string) {
-  return collection(db, 'rooms', roomCode.toUpperCase(), 'actions');
+  return collection(getDb(), 'rooms', roomCode.toUpperCase(), 'actions');
 }
 
 export async function createRoom(
@@ -53,7 +53,7 @@ export async function createRoom(
 
 export async function joinRoom(roomCode: string, uid: string, name: string, startingStack: number): Promise<void> {
   const ref = roomRef(roomCode);
-  await runTransaction(db, async (tx) => {
+  await runTransaction(getDb(), async (tx) => {
     const snap = await tx.get(ref);
     if (!snap.exists()) throw new Error('Room not found');
     const table = snap.data() as TableState;
