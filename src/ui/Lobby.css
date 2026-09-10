@@ -1,0 +1,82 @@
+.lobby {
+  min-height: 100dvh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 1.5rem;
+  gap: 1rem;
+  background: #0b3d1f;
+  color: #f5f5f5;
+}
+
+.lobby h1 {
+  font-size: 2rem;
+  margin-bottom: 0.5rem;
+}
+
+.lobby-error {
+  background: #7a1f1f;
+  padding: 0.6rem 1rem;
+  border-radius: 0.5rem;
+  max-width: 22rem;
+  text-align: center;
+}
+
+.lobby-choices,
+.lobby-form {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  width: 100%;
+  max-width: 22rem;
+}
+
+.lobby-form label {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+  font-size: 0.9rem;
+}
+
+.lobby-form input {
+  font-size: 1.1rem;
+  padding: 0.6rem 0.7rem;
+  border-radius: 0.5rem;
+  border: none;
+}
+
+.blind-row {
+  display: flex;
+  gap: 0.75rem;
+}
+
+.blind-row label {
+  flex: 1;
+}
+
+.btn {
+  font-size: 1.05rem;
+  padding: 0.75rem 1rem;
+  border-radius: 0.6rem;
+  border: 1px solid rgba(255, 255, 255, 0.4);
+  background: transparent;
+  color: #f5f5f5;
+  cursor: pointer;
+}
+
+.btn-primary {
+  background: #2e8b3d;
+  border-color: #2e8b3d;
+  font-weight: 700;
+}
+
+.btn-link {
+  border: none;
+  text-decoration: underline;
+  padding: 0.3rem;
+}
+
+.btn:disabled {
+  opacity: 0.6;
+}

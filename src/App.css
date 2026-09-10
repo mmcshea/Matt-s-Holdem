@@ -1,0 +1,11 @@
+.loading-screen,
+.fatal-error {
+  min-height: 100dvh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #0b3d1f;
+  color: #f5f5f5;
+  padding: 1.5rem;
+  text-align: center;
+}

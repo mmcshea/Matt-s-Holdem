@@ -1,0 +1,50 @@
+.action-bar {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+  padding: 0.75rem 1rem calc(0.75rem + env(safe-area-inset-bottom));
+  background: rgba(0, 0, 0, 0.55);
+  backdrop-filter: blur(4px);
+}
+
+.action-buttons {
+  display: flex;
+  gap: 0.6rem;
+}
+
+.action-btn {
+  flex: 1;
+  padding: 0.85rem 0.5rem;
+  font-size: 1.05rem;
+  font-weight: 700;
+  border-radius: 0.6rem;
+  border: none;
+  color: #fff;
+}
+
+.action-btn.fold {
+  background: #7a1f1f;
+}
+
+.action-btn.check {
+  background: #35618f;
+}
+
+.action-btn.call {
+  background: #2e6b3e;
+}
+
+.action-btn.raise {
+  background: #b8860b;
+  width: 100%;
+}
+
+.raise-row {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.raise-row input[type='range'] {
+  width: 100%;
+}
