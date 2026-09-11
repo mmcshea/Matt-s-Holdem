@@ -6,12 +6,13 @@ import {
   hostPublishTable,
   hostPublishTableAndHands,
   subscribeActionQueue,
-} from '../firebase/roomService';
+} from '../supabase/roomService';
 
 // Runs only on the host's device. Owns the authoritative GameSession
-// (including the deck and everyone's hole cards, which never touch
-// Firestore in plaintext-to-everyone form) and drives it forward as
-// player actions arrive in the room's action queue.
+// (including the deck, which never leaves this device - only the currently
+// dealt hole cards get published, one row per player, RLS-restricted to
+// that player) and drives it forward as player actions arrive in the
+// room's action queue.
 //
 // Known limitation: the deck/hole-card state lives only in this device's
 // memory. If the host reloads mid-hand, that in-memory state is lost and

@@ -1,9 +1,8 @@
 import { useEffect, useState } from 'react';
-import type { User } from 'firebase/auth';
-import { ensureSignedIn } from '../firebase/firebase';
+import { ensureSignedIn } from '../supabase/supabaseClient';
 
 export function useAuth() {
-  const [user, setUser] = useState<User | null>(null);
+  const [user, setUser] = useState<{ uid: string } | null>(null);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {

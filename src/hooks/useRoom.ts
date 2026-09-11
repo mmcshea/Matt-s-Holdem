@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import type { Card, TableState } from '../engine/types';
-import { subscribeMyHoleCards, subscribeRoom } from '../firebase/roomService';
+import { subscribeMyHoleCards, subscribeRoom } from '../supabase/roomService';
 
 export function useRoom(roomCode: string | null, uid: string | null) {
   const [table, setTable] = useState<TableState | null>(null);

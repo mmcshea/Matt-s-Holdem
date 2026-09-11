@@ -4,7 +4,7 @@ import { useRoom } from './hooks/useRoom';
 import { useHostController } from './hooks/useHostController';
 import { Lobby } from './ui/Lobby';
 import { Table } from './ui/Table';
-import { createRoom, joinRoom, submitAction } from './firebase/roomService';
+import { createRoom, joinRoom, submitAction } from './supabase/roomService';
 import './App.css';
 
 function readRoomFromUrl(): string | null {

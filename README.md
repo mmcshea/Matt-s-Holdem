@@ -1,16 +1,26 @@
 # Hold'em
 
-A mobile-first Texas Hold'em PWA. One player creates a table and shares a room
-code / link; everyone else opens it on their own phone, sees their own hole
-cards privately, and plays a normal hand of hold'em together in real time.
+A mobile-first Texas Hold'em PWA with two ways to play:
+
+- **Pass & Play** - everyone shares one phone, taking turns; hole cards stay
+  hidden behind a "tap to reveal" gate between turns. Works immediately,
+  zero setup.
+- **Online multiplayer** - each player uses their own phone; a room creator
+  shares a code/link, everyone joins, hole cards are private to each
+  player. Needs a one-time Supabase project (below).
+
+Live at: **https://mmcshea.github.io/Matt-s-Holdem/**
+(auto-deployed by GitHub Actions on every push to `main` - see
+`.github/workflows/deploy-pages.yml`.)
 
 - **Engine**: full hold'em rules (blinds, betting rounds, side pots, hand
   evaluation, showdown) - `src/engine/`, covered by 20 unit tests
   (`npm test`).
-- **Sync**: Firebase Firestore + Anonymous Auth. The room creator's device
-  runs the authoritative game engine and publishes state; other phones just
-  read state and submit actions. Firestore security rules keep each
-  player's hole cards visible only to them.
+- **Sync**: [Supabase](https://supabase.com) (Postgres + Realtime +
+  Anonymous Auth). The room creator's device runs the authoritative game
+  engine and publishes state; other phones just read state and submit
+  actions. Row Level Security policies keep each player's hole cards
+  visible only to them.
 - **Install on phones**: it's a PWA - open the URL on a phone and
   "Add to Home Screen" for an app-like icon with no app store involved.
 
@@ -22,69 +32,54 @@ npm test        # engine + hand-evaluator unit tests
 npm run dev      # http://localhost:5173
 ```
 
-The app won't fully work yet without a Firebase project (see below) - it
-will show a sign-in error until `.env.local` is filled in.
+Pass & Play works immediately with no setup. Online multiplayer needs a
+Supabase project (see below) - until `.env.local` is filled in, picking
+"Online multiplayer" will show a sign-in error, which is expected.
 
-## 2. Create a Firebase project (one-time, ~5 minutes)
+## 2. Create a Supabase project (one-time, ~5 minutes)
 
-This part needs your Google account - it can't be done from here.
+This part needs your own account - it can't be done from here.
 
-1. Go to the [Firebase console](https://console.firebase.google.com/) and
-   create a new project (free "Spark" plan is enough).
-2. **Build > Authentication > Get started > Sign-in method > Anonymous >
-   Enable.**
-3. **Build > Firestore Database > Create database** (start in production
-   mode; any region is fine).
-4. **Project settings (gear icon) > General > Your apps > Add app > Web
-   (`</>`)**. Register the app (no hosting setup needed there), then copy
-   the `firebaseConfig` values shown.
-5. Create `.env.local` in the project root (copy `.env.example`) and paste
-   those values in:
+1. Go to [supabase.com](https://supabase.com/dashboard) and sign in
+   (GitHub sign-in is the fastest option).
+2. **New project** - pick an org, name it anything, set a database
+   password (save it somewhere, though this app never needs it again),
+   pick any region, create.
+3. Once the project's ready, open the **SQL Editor** (left sidebar),
+   **New query**, paste in the entire contents of `supabase-schema.sql`
+   from this repo, and click **Run**. This creates all the tables,
+   security policies, realtime subscriptions, and one helper function -
+   one paste, one click, nothing else to configure by hand.
+4. **Authentication > Sign In / Providers > Anonymous Sign-Ins** - toggle
+   this **on** (this is the one setting that can't be done via SQL). Save.
+5. **Project Settings > API** - copy the **Project URL** and the
+   **anon / public** API key.
+6. Create `.env.local` in the project root (copy `.env.example`) and paste
+   those two values in:
 
    ```
-   VITE_FIREBASE_API_KEY=...
-   VITE_FIREBASE_AUTH_DOMAIN=...
-   VITE_FIREBASE_PROJECT_ID=...
-   VITE_FIREBASE_STORAGE_BUCKET=...
-   VITE_FIREBASE_MESSAGING_SENDER_ID=...
-   VITE_FIREBASE_APP_ID=...
+   VITE_SUPABASE_URL=...
+   VITE_SUPABASE_ANON_KEY=...
    ```
 
-6. Deploy the security rules in `firestore.rules` (they're what keeps hole
-   cards private) - either paste `firestore.rules`'s contents into
-   **Firestore Database > Rules** in the console and hit Publish, or via
-   CLI:
+   This makes online mode work when running locally (`npm run dev`).
 
-   ```bash
-   npm install -g firebase-tools
-   firebase login
-   firebase use --add        # pick the project you just created
-   firebase deploy --only firestore:rules
-   ```
+## 3. Make the deployed site use it too
 
-## 3. Deploy so phones can reach it
+`.env.local` only affects your own machine - it's gitignored and never
+reaches GitHub Actions. For the **live** site (the URL at the top of this
+file) to pick up your Supabase project, add the same two values as
+**repository secrets**:
 
-Any static host works since this is a plain Vite build. Two easy options:
+**Settings > Secrets and variables > Actions > New repository secret**,
+add both `VITE_SUPABASE_URL` and `VITE_SUPABASE_ANON_KEY` with the same
+values as in `.env.local`.
 
-**Firebase Hosting** (same project, no extra account):
-
-```bash
-npm run build
-firebase deploy --only hosting
-```
-
-You'll get a `https://<project-id>.web.app` URL.
-
-**Vercel** (equally easy, sometimes faster):
-
-```bash
-npm install -g vercel
-vercel --prod
-```
-
-Add the six `VITE_FIREBASE_*` variables from `.env.local` in the Vercel
-project's Environment Variables settings first (or pass with `vercel env`),
-since `.env.local` itself is gitignored and never uploaded.
+The next push to `main` (or re-running the workflow from the **Actions**
+tab) will rebuild with those values baked in, and online multiplayer will
+work at the live URL. Until this step, the deployed site's "Online
+multiplayer" option will show a sign-in error - that's expected, and
+Pass & Play is unaffected either way.
 
 ## 4. Get it on phones
 
@@ -95,8 +90,14 @@ Store or Play Store needed, works on iOS and Android.
 
 ## How a game works
 
-1. One person opens the site, enters a name, and **Create a table** (sets
-   blinds and starting chip stack). They become the host.
+**Pass & Play**: enter everyone's names on one phone, deal, and pass the
+phone around - each turn shows a "pass to \<name\>" gate before revealing
+that player's cards.
+
+**Online multiplayer**:
+1. One person opens the site, picks **Online multiplayer**, enters a name,
+   and **Create a table** (sets blinds and starting chip stack). They
+   become the host.
 2. They share the room code or invite link with the others, who **Join with
    a code**.
 3. Once 2+ players have joined, the host taps **Deal first hand**.
@@ -115,3 +116,5 @@ Store or Play Store needed, works on iOS and Android.
 - Single table per room code; no lobby list of open tables, no persistent
   accounts/chip history across sessions - it's built for "friends starting
   a game together right now."
+- Pass & Play state is saved to the browser's local storage so a reload
+  doesn't lose the game, but it's per-device only (not shared/backed up).
